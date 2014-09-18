@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import models.Task
 
+
 object Application extends Controller {
 
 	val taskForm = Form(
