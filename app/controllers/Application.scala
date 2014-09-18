@@ -34,6 +34,4 @@ object Application extends Controller {
   		Task.delete(id)
   		Redirect(routes.Application.tasks)
 	}
-
-
 }
