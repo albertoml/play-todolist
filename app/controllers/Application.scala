@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import models.Task
+import play.api.libs.json._
 
 
 object Application extends Controller {
@@ -18,7 +19,8 @@ object Application extends Controller {
 	}
 
 	def tasks = Action{
-	  	Ok(views.html.index(Task.all(), taskForm))
+		val jsonTareas = Json.toJson(Task.all())
+	  	Ok(jsonTareas)
 	}
 
 	def newTask = Action { implicit request =>
