@@ -23,6 +23,17 @@ object Application extends Controller {
 	  	Ok(jsonTareas)
 	}
 
+	def task(id: Long) = Action{
+		val tarea = Task.buscar(id)
+		val jsonTarea = Json.toJson(tarea)
+		if (jsonTarea == JsNull){
+			NotFound("Tarea no encontrada")
+		}
+		else{
+			Ok(jsonTarea) 
+		}
+	}
+
 	def newTask = Action { implicit request =>
 	  	taskForm.bindFromRequest.fold(
 	    	errors => BadRequest(views.html.index(Task.all(), errors)),

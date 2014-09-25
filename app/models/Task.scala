@@ -33,6 +33,13 @@ object Task {
 		implicit c => 
 		SQL("select * from task").as(task *)
 	}
+
+	def buscar(id: Long): Option[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task where id = {id}").on(
+		'id-> id
+		).as(Task.task.singleOpt)
+	}
   
 	def create(label: String) {
 		DB.withConnection { implicit c =>
@@ -48,6 +55,5 @@ object Task {
       	'id -> id
     	).executeUpdate()
   		}
-	}
-  
+	} 
 }
