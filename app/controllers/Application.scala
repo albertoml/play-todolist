@@ -46,8 +46,23 @@ object Application extends Controller {
 	}
 
 	def deleteTask(id: Long) = Action {
-  		Task.delete(id)
-  		Redirect(routes.Application.tasks)
+		/*val tarea = Task.buscar(id)
+
+
+		if(tarea.label == ""){
+			NotFound("Tarea no encontrada")
+		}
+		else{
+			Task.delete(id)
+			Ok("Tarea borrada con exito")
+		}*/
+		Task.buscar(id) match {
+			case Some(task) => {
+				Task.delete(task.id)
+				Ok("Tarea borrada con exito")
+			}
+			case None => { NotFound("Tarea no encontrada") }
+		}	
 	}
 	
 }
