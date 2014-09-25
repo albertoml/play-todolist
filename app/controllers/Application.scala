@@ -39,7 +39,8 @@ object Application extends Controller {
 	    	errors => BadRequest(views.html.index(Task.all(), errors)),
 	    	label => {
 	      		Task.create(label)
-	      		Redirect(routes.Application.tasks)
+	      		val tarea: JsValue = Json.obj("label" -> label)
+	      		Status(201)(tarea)
 	    	}
 	  	)
 	}
