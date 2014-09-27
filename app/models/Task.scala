@@ -31,7 +31,7 @@ object Task {
   
 	def all(): List[Task] = DB.withConnection { 
 		implicit c => 
-		SQL("select * from task").as(task *)
+		SQL("select * from task where nombre='alberto'").as(task *)
 	}
 
 	def buscar(id: Long): Option[Task] = DB.withConnection {
@@ -43,7 +43,7 @@ object Task {
   
 	def create(label: String) {
 		DB.withConnection { implicit c =>
-    	SQL("insert into task (label) values ({label})").on(
+    	SQL("insert into task (label, nombre) values ({label}, 'alberto')").on(
       	'label -> label
     	).executeUpdate()
   		}
@@ -59,7 +59,7 @@ object Task {
 
 	def byUser(login: String): List[Task] =
 		DB.withConnection { implicit c =>
-		SQL("select * from task, task_user where task.nombre={login}"
+		SQL("select * from task, task_user where task.nombre={login} and task_user.nombre=task.nombre"
 		).on(
 		'login -> login
 		).as(task *)
