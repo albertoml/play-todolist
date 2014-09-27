@@ -64,4 +64,13 @@ object Task {
 		'login -> login
 		).as(task *)
 	}
+
+	def createByUser(label: String, login: String){
+		DB.withConnection { implicit c =>
+    	SQL("insert into task (label, nombre) values ({label}, {login})").on(
+      	'label -> label,
+      	'login -> login
+    	).executeUpdate()
+  		}
+	}
 }

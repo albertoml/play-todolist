@@ -15,4 +15,4 @@ GET		/tasks/:id 					controllers.Application.task(id: Long)
 POST 	/tasks 						controllers.Application.newTask
 DELETE 	/tasks/:id 					controllers.Application.deleteTask(id: Long)
 GET 	/:login/tasks 				controllers.Application.tasksUser(login: String)
-#POST	/:login/tasks 				controllers.Application.newTaskUser(login: String)
+POST	/:login/tasks 				controllers.Application.newTaskUser(login: String)

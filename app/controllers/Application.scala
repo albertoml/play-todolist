@@ -60,8 +60,14 @@ object Application extends Controller {
 		Ok(jsonTareas)
 	}
 
-	/*def newTaskUser(login: String) = Action {
-
-
-	}*/
+	def newTaskUser(login: String) = Action { implicit request =>
+		taskForm.bindFromRequest.fold(
+	    	errors => BadRequest(views.html.index(Task.all(), errors)),
+	    	label => {
+	      		Task.createByUser(label, login)
+	      		val tarea: JsValue = Json.obj("label" -> label)
+	      		Status(201)(tarea)
+	    	}
+	  	)
+	}
 }
