@@ -56,4 +56,12 @@ object Task {
     	).executeUpdate()
   		}
 	} 
+
+	def byUser(login: String): List[Task] =
+		DB.withConnection { implicit c =>
+		SQL("select * from task, task_user where task.nombre={login}"
+		).on(
+		'login -> login
+		).as(task *)
+	}
 }

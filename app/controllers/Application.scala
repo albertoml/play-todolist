@@ -54,4 +54,14 @@ object Application extends Controller {
 			case None => { NotFound("Tarea no encontrada") }
 		}	
 	}
+
+	def tasksUser(login: String) = Action {
+		val jsonTareas = Json.toJson(Task.byUser(login))
+		Ok(jsonTareas)
+	}
+
+	/*def newTaskUser(login: String) = Action {
+
+
+	}*/
 }
