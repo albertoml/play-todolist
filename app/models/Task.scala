@@ -7,31 +7,34 @@ import play.api.Play.current
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-case class Task(id: Long, label: String)
+case class Task(id: Long, label: String, nombre: String)
 
 object Task {
 
 	implicit val taskReads: Reads[Task] = (
 		(JsPath \ "id").read[Long] and
-		(JsPath \ "label").read[String]
+		(JsPath \ "label").read[String] and
+		(JsPath \ "nombre").read[String]
 		)(Task.apply _ )
 
 	implicit val taskWrites: Writes[Task] = (
 		(JsPath \ "id").write[Long] and
-		(JsPath \ "label").write[String]
+		(JsPath \ "label").write[String] and
+		(JsPath \ "nombre").write[String]
 		)(unlift(Task.unapply) )
 
 
 	val task = {
   		get[Long]("id") ~ 
-  		get[String]("label") map {
-    	case id~label => Task(id, label)
+  		get[String]("label") ~
+  		get[String]("nombre") map {
+    	case id~label~nombre => Task(id, label, nombre)
   		}
 	}
   
 	def all(): List[Task] = DB.withConnection { 
 		implicit c => 
-		SQL("select * from task where nombre='alberto'").as(task *)
+		SQL("select * from task where nombre = 'alberto'").as(task *)
 	}
 
 	def buscar(id: Long): Option[Task] = DB.withConnection {

@@ -5,8 +5,10 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import models.Task
+import models.Task_user
 import play.api.libs.json._
 
+//DUDA NO SE SI CUANDO NO ENCUENTRA USUARIOS ES ERROR 404 O 400
 
 object Application extends Controller {
 
@@ -56,17 +58,27 @@ object Application extends Controller {
 	}
 
 	def tasksUser(login: String) = Action {
-		val jsonTareas = Json.toJson(Task.byUser(login))
-		Ok(jsonTareas)
+		Task_user.buscarUser(login) match {
+			case Some(user) => {
+				val jsonTareas = Json.toJson(Task.byUser(login))
+				Ok(jsonTareas)
+			}
+			case None => {NotFound("Usuario no encontrado")} 
+		}
 	}
 
 	def newTaskUser(login: String) = Action { implicit request =>
 		taskForm.bindFromRequest.fold(
 	    	errors => BadRequest(views.html.index(Task.all(), errors)),
 	    	label => {
-	      		Task.createByUser(label, login)
-	      		val tarea: JsValue = Json.obj("label" -> label)
-	      		Status(201)(tarea)
+	    		Task_user.buscarUser(login) match {
+				case Some(user) => {
+					Task.createByUser(label, login)
+	      			val tarea: JsValue = Json.obj("label" -> label)
+	      			Status(201)(tarea)
+				}
+				case None => {NotFound("Usuario no encontrado")} 
+				}
 	    	}
 	  	)
 	}
