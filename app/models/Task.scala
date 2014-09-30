@@ -7,31 +7,34 @@ import play.api.Play.current
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-case class Task(id: Long, label: String)
+case class Task(id: Long, label: String, nombre: String)
 
 object Task {
 
 	implicit val taskReads: Reads[Task] = (
 		(JsPath \ "id").read[Long] and
-		(JsPath \ "label").read[String]
+		(JsPath \ "label").read[String] and
+		(JsPath \ "nombre").read[String]
 		)(Task.apply _ )
 
 	implicit val taskWrites: Writes[Task] = (
 		(JsPath \ "id").write[Long] and
-		(JsPath \ "label").write[String]
+		(JsPath \ "label").write[String] and
+		(JsPath \ "nombre").write[String]
 		)(unlift(Task.unapply) )
 
 
 	val task = {
   		get[Long]("id") ~ 
-  		get[String]("label") map {
-    	case id~label => Task(id, label)
+  		get[String]("label") ~
+  		get[String]("nombre") map {
+    	case id~label~nombre => Task(id, label, nombre)
   		}
 	}
   
 	def all(): List[Task] = DB.withConnection { 
 		implicit c => 
-		SQL("select * from task").as(task *)
+		SQL("select * from task where nombre = 'alberto'").as(task *)
 	}
 
 	def buscar(id: Long): Option[Task] = DB.withConnection {
@@ -43,7 +46,7 @@ object Task {
   
 	def create(label: String) {
 		DB.withConnection { implicit c =>
-    	SQL("insert into task (label) values ({label})").on(
+    	SQL("insert into task (label, nombre) values ({label}, 'alberto')").on(
       	'label -> label
     	).executeUpdate()
   		}
@@ -56,4 +59,21 @@ object Task {
     	).executeUpdate()
   		}
 	} 
+
+	def byUser(login: String): List[Task] =
+		DB.withConnection { implicit c =>
+		SQL("select * from task, task_user where task.nombre={login} and task_user.nombre=task.nombre"
+		).on(
+		'login -> login
+		).as(task *)
+	}
+
+	def createByUser(label: String, login: String){
+		DB.withConnection { implicit c =>
+    	SQL("insert into task (label, nombre) values ({label}, {login})").on(
+      	'label -> label,
+      	'login -> login
+    	).executeUpdate()
+  		}
+	}
 }
