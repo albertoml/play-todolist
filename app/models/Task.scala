@@ -6,33 +6,29 @@ import play.api.db._
 import play.api.Play.current
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
-import java.util.{Date}
 
-case class Task(id: Long, label: String, nombre: String, fecha: Date)
+case class Task(id: Long, label: String, nombre: String)
 
 object Task {
 
 	implicit val taskReads: Reads[Task] = (
 		(JsPath \ "id").read[Long] and
 		(JsPath \ "label").read[String] and
-		(JsPath \ "nombre").read[String] and
-		(JsPath \ "fecha").read[Date]
+		(JsPath \ "nombre").read[String]
 		)(Task.apply _ )
 
 	implicit val taskWrites: Writes[Task] = (
 		(JsPath \ "id").write[Long] and
 		(JsPath \ "label").write[String] and
-		(JsPath \ "nombre").write[String] and
-		(JsPath \ "fecha").write[Date]
+		(JsPath \ "nombre").write[String]
 		)(unlift(Task.unapply) )
 
 
 	val task = {
   		get[Long]("id") ~ 
   		get[String]("label") ~
-  		get[String]("nombre") ~
-  		get[Option][Date]("fecha") map {
-    	case id~label~nombre~fecha => Task(id, label, nombre, fecha)
+  		get[String]("nombre") map {
+    	case id~label~nombre => Task(id, label, nombre)
   		}
 	}
   
@@ -50,7 +46,7 @@ object Task {
   
 	def create(label: String) {
 		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre, fecha) values ({label}, 'alberto', null)").on(
+    	SQL("insert into task (label, nombre) values ({label}, 'alberto')").on(
       	'label -> label
     	).executeUpdate()
   		}
@@ -80,12 +76,4 @@ object Task {
     	).executeUpdate()
   		}
 	}
-
-	/*def createDate(label: String, fecha: Date){
-		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre, fecha) values ({label}, 'alberto', {fecha})").on(
-      	'label -> label
-    	).executeUpdate()
-  		}
-	}*/
 }

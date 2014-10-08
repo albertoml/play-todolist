@@ -7,7 +7,6 @@ import play.api.data.Forms._
 import models.Task
 import models.Task_user
 import play.api.libs.json._
-import java.util.{Date}
 
 //DUDA NO SE SI CUANDO NO ENCUENTRA USUARIOS ES ERROR 404 O 400
 
@@ -83,16 +82,4 @@ object Application extends Controller {
 	    	}
 	  	)
 	}
-
-	/*def newTaskDate(fecha: String) = Action { implicit request =>
-		taskForm.bindFromRequest.fold(
-	    	errors => BadRequest(views.html.index(Task.all(), errors)),
-	    	label => {
-	    		val f = new Date(fecha)
-	      		Task.createDate(label, f)
-	      		val tarea: JsValue = Json.obj("label" -> label)
-	      		Status(201)(tarea)
-	    	}
-	  	)
-	}*/
 }
