@@ -60,7 +60,7 @@ object Application extends Controller {
 	def tasksUser(login: String) = Action {
 		Task_user.buscarUser(login) match {
 			case Some(user) => {
-				val jsonTareas = Json.toJson(Task.byUser(login))
+				val jsonTareas = Json.toJson(Task.buscarByUser(login))
 				Ok(jsonTareas)
 			}
 			case None => {NotFound("Usuario no encontrado")} 
