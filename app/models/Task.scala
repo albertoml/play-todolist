@@ -26,12 +26,11 @@ object Task {
 		(JsPath \ "fecha").write[Option[Date]]
 		)(unlift(Task.unapply) )
 
-
 	val task = {
   		get[Long]("id") ~ 
   		get[String]("label") ~
   		get[String]("nombre") ~
-  		 get[Option[Date]]("fecha") map {
+  		get[Option[Date]]("fecha") map {
     	case id~label~nombre~fecha => Task(id, label, nombre, fecha)
   		}
 	}
@@ -46,14 +45,6 @@ object Task {
 		SQL("select * from task where id = {id}").on(
 		'id-> id
 		).as(Task.task.singleOpt)
-	}
-  
-	def create(label: String) {
-		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre) values ({label}, 'alberto')").on(
-      	'label -> label
-    	).executeUpdate()
-  		}
 	}
   
 	def delete(id: Long) {
@@ -72,11 +63,12 @@ object Task {
 		).as(task *)
 	}
 
-	def createByUser(label: String, login: String){
+	def create(t: Task) {
 		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre) values ({label}, {login})").on(
-      	'label -> label,
-      	'login -> login
+    	SQL("insert into task (label, nombre, fecha) values ({label}, {nombre}, {fecha})").on(
+      	'label -> t.label,
+      	'nombre -> t.nombre,
+      	'fecha -> t.fecha
     	).executeUpdate()
   		}
 	}
