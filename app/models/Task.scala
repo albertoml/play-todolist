@@ -72,4 +72,16 @@ object Task {
     	).executeUpdate()
   		}
 	}
+
+	def orderAsc() : List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task where fecha IS NOT NULL order by fecha ASC").as(task *)
+	}
+
+	def listarPorAnyo(anyo: Int) : List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task where YEAR(fecha)={anyo}").on(
+		'anyo -> anyo
+		).as(task *)
+	}
 }

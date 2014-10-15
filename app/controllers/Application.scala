@@ -9,8 +9,6 @@ import models.Task_user
 import play.api.libs.json._
 import java.util.Date
 
-//DUDA NO SE SI CUANDO NO ENCUENTRA USUARIOS ES ERROR 404 O 400
-
 object Application extends Controller {
 
 	val taskForm = Form(
@@ -80,7 +78,7 @@ object Application extends Controller {
 	      			val tarea: JsValue = Json.obj("label" -> label)
 	      			Status(201)(tarea)
 				}
-				case None => {Status(400)("Usuario no encontrado")} 
+				case None => {Status(400)("Usuario incorrecto")} 
 				}
 	    	}
 	  	)
@@ -90,9 +88,7 @@ object Application extends Controller {
 
 		try{
 			val array = fecha.split("-")
-	    	val a = array(0).toInt
-	    	val anyo = a - 1900
-	    	val f = new Date(anyo, array(1).toInt, array(2).toInt)
+	    	val f = new Date(array(0).toInt, array(1).toInt, array(2).toInt)
 	    	Some(f)
 		} catch{
 			case e: Exception => None
@@ -144,9 +140,19 @@ object Application extends Controller {
 		      			Status(201)(tarea)
 					}
 				}
-				case None => {Status(400)("Usuario no encontrado")} 
+				case None => {Status(400)("Usuario incorrecto")} 
 				}
 			}
 		)
+	}
+
+	def orderByAsc = Action{
+		val jsonTareas = Json.toJson(Task.orderAsc())
+	  	Ok(jsonTareas)
+	}
+
+	def listarAnyo(anyo: Int) = Action {
+		val jsonTareas = Json.toJson(Task.listarPorAnyo(anyo))
+		Ok(jsonTareas)
 	}
 }
