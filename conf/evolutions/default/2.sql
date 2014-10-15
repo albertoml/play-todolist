@@ -9,6 +9,8 @@ CREATE TABLE task_user (
 ALTER TABLE task ADD nombre varchar(50);
 ALTER TABLE task ADD CONSTRAINT fknombre FOREIGN KEY (nombre) REFERENCES task_user(nombre);
 
+ALTER TABLE task ADD fecha date;
+
 insert into task_user (nombre) values ('alberto');
 insert into task_user (nombre) values ('domingo');
 insert into task_user (nombre) values ('risto');
@@ -22,3 +24,4 @@ delete from task_user;
 drop table task_user;
 alter table task drop nombre;
 alter table task drop fknombre;
+alter table task drop fecha;

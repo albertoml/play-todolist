@@ -6,29 +6,47 @@ import play.api.db._
 import play.api.Play.current
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import java.util.Date
 
-case class Task(id: Long, label: String, nombre: String)
+case class Task(id: Long, label: String, nombre: String, fecha: Option[Date])
 
 object Task {
+
+	/*implicit object TaskFormat extends Format[Task] {
+		def reads(json: JsValue): Task = Task(
+			(json \ "id").as[Long],
+			(json \ "label").as[String],
+			(json \ "nombre").as[String],
+			(json \ "fecha").as[Option[Date]]
+			)
+		def writes(t: Task) : JsValue = JsObject(List(
+			"id" -> JsNumber(t.id),
+			"label" -> JsString(t.label),
+			"nombre" -> JsString(t.nombre),
+			"fecha" -> JsString(t.fecha.toString())))
+	}*/
+
 
 	implicit val taskReads: Reads[Task] = (
 		(JsPath \ "id").read[Long] and
 		(JsPath \ "label").read[String] and
-		(JsPath \ "nombre").read[String]
+		(JsPath \ "nombre").read[String] and
+		(JsPath \ "fecha").read[Option[Date]]
 		)(Task.apply _ )
 
 	implicit val taskWrites: Writes[Task] = (
 		(JsPath \ "id").write[Long] and
 		(JsPath \ "label").write[String] and
-		(JsPath \ "nombre").write[String]
-		)(unlift(Task.unapply) )
-
+		(JsPath \ "nombre").write[String] and
+		(JsPath \ "fecha").write[Option[Date]]
+		)(unlift(Task.unapply))
 
 	val task = {
   		get[Long]("id") ~ 
   		get[String]("label") ~
-  		get[String]("nombre") map {
-    	case id~label~nombre => Task(id, label, nombre)
+  		get[String]("nombre") ~
+  		get[Option[Date]]("fecha") map {
+    	case id~label~nombre~fecha => Task(id, label, nombre, fecha)
   		}
 	}
   
@@ -44,14 +62,6 @@ object Task {
 		).as(Task.task.singleOpt)
 	}
   
-	def create(label: String) {
-		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre) values ({label}, 'alberto')").on(
-      	'label -> label
-    	).executeUpdate()
-  		}
-	}
-  
 	def delete(id: Long) {
 		DB.withConnection { implicit c =>
     	SQL("delete from task where id = {id}").on(
@@ -60,7 +70,7 @@ object Task {
   		}
 	} 
 
-	def byUser(login: String): List[Task] =
+	def buscarByUser(login: String): List[Task] =
 		DB.withConnection { implicit c =>
 		SQL("select * from task, task_user where task.nombre={login} and task_user.nombre=task.nombre"
 		).on(
@@ -68,12 +78,25 @@ object Task {
 		).as(task *)
 	}
 
-	def createByUser(label: String, login: String){
+	def create(t: Task) {
 		DB.withConnection { implicit c =>
-    	SQL("insert into task (label, nombre) values ({label}, {login})").on(
-      	'label -> label,
-      	'login -> login
+    	SQL("insert into task (label, nombre, fecha) values ({label}, {nombre}, {fecha})").on(
+      	'label -> t.label,
+      	'nombre -> t.nombre,
+      	'fecha -> t.fecha
     	).executeUpdate()
   		}
+	}
+
+	def orderAsc() : List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task where fecha IS NOT NULL order by fecha ASC").as(task *)
+	}
+
+	def listarPorAnyo(anyo: Int) : List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task where YEAR(fecha)={anyo}").on(
+		'anyo -> anyo
+		).as(task *)
 	}
 }
