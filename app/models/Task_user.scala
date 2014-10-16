@@ -11,15 +11,6 @@ case class Task_user(nombre: String)
 
 object Task_user {
 
-	/*implicit val task_userReads: Reads[Task_user] = (
-		(JsPath \ "nombre").read[String]
-		)(Task_user.apply _ )
-
-	implicit val task_userWrites: Writes[Task_user] = (
-		(JsPath \ "nombre").write[String]
-		)(unlift(Task_user.unapply) )*/
-
-
 	val task_user = {
   		get[String]("nombre") map {
     	case nombre => Task_user(nombre)
