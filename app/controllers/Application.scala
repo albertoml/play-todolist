@@ -88,7 +88,7 @@ object Application extends Controller {
 
 		try{
 			val array = fecha.split("-")
-	    	val f = new Date(array(0).toInt, array(1).toInt, array(2).toInt)
+	    	val f = new Date((array(0).toInt-1900), (array(1).toInt-1), array(2).toInt)
 	    	Some(f)
 		} catch{
 			case e: Exception => None
@@ -108,7 +108,7 @@ object Application extends Controller {
 					Status(400)("Fecha en formato incorrecto")
 				}else{
 
-		    		val salida = f.getDate() + "/" + f.getMonth() + "/" + f.getYear()
+		    		val salida = f.getDate() + "/" + (f.getMonth()+1) + "/" + (f.getYear()+1900)
 		      		val t = new Task(0, label, "alberto", f_aux)
 		      		Task.create(t)
 		      		val tarea: JsValue = Json.obj("label" -> label, "fecha" -> salida)
@@ -133,7 +133,7 @@ object Application extends Controller {
 						Status(400)("Fecha en formato incorrecto")
 					}else{
 
-						val salida = f.getDate() + "/" + f.getMonth() + "/" + f.getYear()
+						val salida = f.getDate() + "/" + (f.getMonth()+1) + "/" + (f.getYear()+1900)
 		      			val t = new Task(0, label, login, f_aux)
 		      			Task.create(t)
 		      			val tarea: JsValue = Json.obj("label" -> label, "fecha" -> salida)

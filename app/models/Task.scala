@@ -12,20 +12,7 @@ case class Task(id: Long, label: String, nombre: String, fecha: Option[Date])
 
 object Task {
 
-	/*implicit object TaskFormat extends Format[Task] {
-		def reads(json: JsValue): Task = Task(
-			(json \ "id").as[Long],
-			(json \ "label").as[String],
-			(json \ "nombre").as[String],
-			(json \ "fecha").as[Option[Date]]
-			)
-		def writes(t: Task) : JsValue = JsObject(List(
-			"id" -> JsNumber(t.id),
-			"label" -> JsString(t.label),
-			"nombre" -> JsString(t.nombre),
-			"fecha" -> JsString(t.fecha.toString())))
-	}*/
-
+	val formatdate = Writes.dateWrites("yyyy-MM-dd")
 
 	implicit val taskReads: Reads[Task] = (
 		(JsPath \ "id").read[Long] and
@@ -38,7 +25,7 @@ object Task {
 		(JsPath \ "id").write[Long] and
 		(JsPath \ "label").write[String] and
 		(JsPath \ "nombre").write[String] and
-		(JsPath \ "fecha").write[Option[Date]]
+		(JsPath \ "fecha").writeNullable[Date](formatdate)
 		)(unlift(Task.unapply))
 
 	val task = {
