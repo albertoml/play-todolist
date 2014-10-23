@@ -65,9 +65,9 @@ class Application extends Specification {
     	}
 
     	"crear una tarea cuando envias un formulario con el campo label" in new WithApplication{
-    		val Some(home) = route(FakeRequest(POST, "/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
+    		val Some(home) = route(FakeRequest(POST, "/tasks").withFormUrlEncodedBody(("label", "Comprar tomate")))
     		status(home) must equalTo(201)
-    		contentAsString(home) must contain("Comprar pepinos")
+    		contentAsString(home) must contain("Comprar tomate")
     	}
 
     	"mostrar error al crear una tarea sin el formulario" in new WithApplication{
@@ -118,13 +118,46 @@ class Application extends Specification {
     	}
 
     	"crear una tarea especificando el usuario" in new WithApplication{
-    		val Some(home) = route(FakeRequest(POST, "/domingo/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
+    		val Some(home) = route(FakeRequest(POST, "/domingo/tasks").withFormUrlEncodedBody(("label", "Comprar lechuga")))
     		status(home) must equalTo(201)
-    		contentAsString(home) must contain("Comprar pepinos")
+    		contentAsString(home) must contain("Comprar lechuga")
     	}
 
     	"no crear la tarea si el usuario no existe" in new WithApplication{
-    		val Some(home) = route(FakeRequest(POST, "/eduardonoesta/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
+    		val Some(home) = route(FakeRequest(POST, "/eduardonoesta/tasks").withFormUrlEncodedBody(("label", "Comprar naranjas")))
+    		status(home) must equalTo(400)
+    		contentAsString(home) must contain("Usuario incorrecto")
+    	}
+
+    	"crear una tarea especificando la fecha" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/tasks/2014-10-23").withFormUrlEncodedBody(("label", "Comprar oregano")))
+    		status(home) must equalTo(201)
+    		contentAsString(home) must contain("Comprar oregano")
+    		contentAsString(home) must contain("23/10/2014")
+    	}
+
+    	"crear una tarea especificando la fecha y el usuario" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/domingo/tasks/2014-10-23").withFormUrlEncodedBody(("label", "Comprar oregano")))
+    		status(home) must equalTo(201)
+    		contentAsString(home) must contain("Comprar oregano")
+    		contentAsString(home) must contain("23/10/2014")
+    	}
+
+    	"no crear una tarea si la fecha es incorrecta" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/tasks/20df14-sfd10-23").withFormUrlEncodedBody(("label", "Comprar oregano")))
+    		status(home) must equalTo(400)
+    		contentAsString(home) must contain("Fecha en formato incorrecto")
+    	}
+
+    	"no crear una tarea si la fecha es incorrecta pero el usuario es correcto" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/domingo/tasks/20df14-sfd10-23").withFormUrlEncodedBody(("label", "Comprar oregano")))
+    		status(home) must equalTo(400)
+    		contentAsString(home) must contain("Fecha en formato incorrecto")
+
+    	}
+
+    	"no crear una tarea si el usuario es incorrecto pero la fecha correcta" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/eduardonoesta/tasks/2014-10-23").withFormUrlEncodedBody(("label", "Comprar oregano")))
     		status(home) must equalTo(400)
     		contentAsString(home) must contain("Usuario incorrecto")
     	}
