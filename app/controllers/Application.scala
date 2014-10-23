@@ -37,7 +37,7 @@ object Application extends Controller {
 
 	def newTask = Action { implicit request =>
 	  	taskForm.bindFromRequest.fold(
-	    	errors => BadRequest(views.html.index(Task.all(), errors)),
+	    	errors => BadRequest("Formulario incorrecto"),
 	    	label => {
 	    		val t = new Task(0, label, "alberto", None)
 	      		Task.create(t)
