@@ -1,7 +1,6 @@
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._
-
 import play.api.test._
 import play.api.test.Helpers._
 import models.Task
@@ -65,11 +64,11 @@ class Application extends Specification {
     		}
     	}
 
-    	/*"crear una tarea cuando envias un formulario con el campo label" in new WithApplication{
-    		val Some(home) = route(FakeRequest(POST, "/tasks").("label", "Comprar pepinos"))
+    	"crear una tarea cuando envias un formulario con el campo label" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
     		status(home) must equalTo(201)
     		contentAsString(home) must contain("Comprar pepinos")
-    	}*/
+    	}
 
     	"mostrar error al crear una tarea sin el formulario" in new WithApplication{
     		val home = route(FakeRequest(POST, "/tasks")).get
@@ -116,6 +115,18 @@ class Application extends Specification {
 			val home = route(FakeRequest(GET, "/eduardonoesta/tasks")).get
 			status(home) must equalTo(404)
 			contentAsString(home) must contain("Usuario no encontrado")
+    	}
+
+    	"crear una tarea especificando el usuario" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/domingo/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
+    		status(home) must equalTo(201)
+    		contentAsString(home) must contain("Comprar pepinos")
+    	}
+
+    	"no crear la tarea si el usuario no existe" in new WithApplication{
+    		val Some(home) = route(FakeRequest(POST, "/eduardonoesta/tasks").withFormUrlEncodedBody(("label", "Comprar pepinos")))
+    		status(home) must equalTo(400)
+    		contentAsString(home) must contain("Usuario incorrecto")
     	}
 	}
 }
