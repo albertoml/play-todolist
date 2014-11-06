@@ -13,14 +13,14 @@ class Application extends Specification {
 	val f2 = new Date(2011, 8, 21)
 	val f3 = new Date(2011, 10, 22)
 
-	val t1 = new Task(0, "prueba", "alberto", Some(f))
-	val t2 = new Task(1, "prueba1", "domingo", None)
-	val t3 = new Task(2, "prueba2", "domingo", Some(f2))
-	val t4 = new Task(3, "prueba3", "alberto", Some(f3))
-	val t5 = new Task(4, "prueba4", "alberto", Some(f))
-	val t6 = new Task(5, "prueba5", "carlos", None)
-	val t7 = new Task(6, "prueba6", "alberto", Some(f2))
-	val t8 = new Task(7, "prueba7", "rocio", None)
+	val t1 = new Task("prueba", "alberto", Some(f))
+	val t2 = new Task("prueba1", "domingo", None)
+	val t3 = new Task("prueba2", "domingo", Some(f2))
+	val t4 = new Task("prueba3", "alberto", Some(f3))
+	val t5 = new Task("prueba4", "alberto", Some(f))
+	val t6 = new Task("prueba5", "carlos", None)
+	val t7 = new Task("prueba6", "alberto", Some(f2))
+	val t8 = new Task("prueba7", "rocio", None)
 
 	"La aplicacion" should{
 
@@ -40,7 +40,7 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks")).get
     			status(home) must equalTo(200)
 				contentAsString(home) must contain ("\"nombre\":\"alberto\"")
-				Task.delete(1)
+				//Task.delete(1)
 			}
     	}
 
@@ -50,7 +50,7 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks/" + 1)).get
     			status(home) must equalTo(200)
 				contentAsString(home) must contain ("\"label\":\"prueba1\"")
-				Task.delete(1)
+				//Task.delete(1)
 			}
     	}
 
@@ -60,7 +60,7 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks/" + 2)).get
     			status(home) must equalTo(404)
     			contentAsString(home) must contain ("Tarea no encontrada")
-    			Task.delete(1)
+    			//Task.delete(1)
     		}
     	}
 
@@ -91,7 +91,7 @@ class Application extends Specification {
     			val home = route(FakeRequest(DELETE, "/tasks/2")).get
     			status(home) must equalTo(404)
     			contentAsString(home) must contain("Tarea no encontrada")
-    			Task.delete(1)
+    			//Task.delete(1)
     		}
     	}
 
@@ -105,9 +105,9 @@ class Application extends Specification {
     			contentAsString(home) must contain("prueba1")
     			contentAsString(home) must contain("prueba2")
     			contentAsString(home) must not contain("prueba3")
-    			Task.delete(1)
-    			Task.delete(2)
-    			Task.delete(3)
+    			//Task.delete(1)
+    			//Task.delete(2)
+    			//Task.delete(3)
     		}
     	}
 

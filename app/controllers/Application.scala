@@ -39,7 +39,7 @@ object Application extends Controller {
 	  	taskForm.bindFromRequest.fold(
 	    	errors => BadRequest("Formulario incorrecto"),
 	    	label => {
-	    		val t = new Task(0, label, "alberto", None)
+	    		val t = new Task(label, "alberto", None)
 	      		Task.create(t)
 	      		val tarea: JsValue = Json.obj("label" -> label)
 	      		Status(201)(tarea)
@@ -50,7 +50,7 @@ object Application extends Controller {
 	def deleteTask(id: Long) = Action {
 		Task.buscar(id) match {
 			case Some(task) => {
-				Task.delete(task.id)
+				Task.delete(task.id.get)
 				Ok("Tarea borrada con exito")
 			}
 			case None => { NotFound("Tarea no encontrada") }
@@ -73,7 +73,7 @@ object Application extends Controller {
 	    	label => {
 	    		Task_user.buscarUser(login) match {
 				case Some(user) => {
-					val t = new Task(0, label, login, None)
+					val t = new Task(label, login, None)
 	      			Task.create(t)
 	      			val tarea: JsValue = Json.obj("label" -> label)
 	      			Status(201)(tarea)
@@ -109,7 +109,7 @@ object Application extends Controller {
 				}else{
 
 		    		val salida = f.getDate() + "/" + (f.getMonth()+1) + "/" + (f.getYear()+1900)
-		      		val t = new Task(0, label, "alberto", f_aux)
+		      		val t = new Task(label, "alberto", f_aux)
 		      		Task.create(t)
 		      		val tarea: JsValue = Json.obj("label" -> label, "fecha" -> salida)
 		      		Status(201)(tarea)
@@ -134,7 +134,7 @@ object Application extends Controller {
 					}else{
 
 						val salida = f.getDate() + "/" + (f.getMonth()+1) + "/" + (f.getYear()+1900)
-		      			val t = new Task(0, label, login, f_aux)
+		      			val t = new Task(label, login, f_aux)
 		      			Task.create(t)
 		      			val tarea: JsValue = Json.obj("label" -> label, "fecha" -> salida)
 		      			Status(201)(tarea)

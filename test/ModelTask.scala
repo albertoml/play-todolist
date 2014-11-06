@@ -22,14 +22,14 @@ class ModelTask extends Specification {
     	/*Suponemos que todos los nombre son correctos ya que 
     	la comprobacion del nombre lo hace el controlador*/
 
-		val t = new Task(0, "prueba", "alberto", Some(f))
-		val t2 = new Task(1, "prueba1", "domingo", None)
-		val t3 = new Task(2, "prueba2", "domingo", Some(f2))
-		val t4 = new Task(3, "prueba3", "alberto", Some(f3))
-		val t5 = new Task(4, "prueba4", "alberto", Some(f))
-		val t6 = new Task(5, "prueba5", "carlos", None)
-		val t7 = new Task(6, "prueba6", "alberto", Some(f2))
-		val t8 = new Task(7, "prueba7", "rocio", None)
+		val t = new Task("prueba", "alberto", Some(f))
+		val t2 = new Task("prueba1", "domingo", None)
+		val t3 = new Task("prueba2", "domingo", Some(f2))
+		val t4 = new Task("prueba3", "alberto", Some(f3))
+		val t5 = new Task("prueba4", "alberto", Some(f))
+		val t6 = new Task("prueba5", "carlos", None)
+		val t7 = new Task("prueba6", "alberto", Some(f2))
+		val t8 = new Task("prueba7", "rocio", None)
 
 		"listar por usuario por defecto (alberto) y borrado de tareas" in {
 			running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
@@ -44,10 +44,10 @@ class ModelTask extends Specification {
 				tareas(0).label must equalTo("prueba")
 				tareas(1).nombre must equalTo("alberto")
 
-				Task.delete(tareas(0).id)
-				Task.delete(tareas(1).id)
-				Task.delete(tareas(2).id)
-				Task.delete(tareas(3).id)
+				Task.delete(tareas(0).id.get)
+				Task.delete(tareas(1).id.get)
+				Task.delete(tareas(2).id.get)
+				Task.delete(tareas(3).id.get)
 
 				val tareasborradas = Task.all()
 				tareasborradas.length must equalTo(0)
@@ -69,14 +69,6 @@ class ModelTask extends Specification {
 				//2011-8-21 con la adapatacion a date 2011+1900-8+1-21 = 3911-09-21
 				dateIs(tarea.fecha.get, "3911-09-21") must beTrue
 				tarea.nombre must equalTo("domingo")
-
-				Task.delete(0)
-				Task.delete(1)
-
-				//no me deja quitarlo pero no tiene ningun sentido
-				//PREGUNTAR A DOMINGO
-				val tareasborradas = Task.all()
-				tareasborradas.length must equalTo(0)
 			}
 		}
 
@@ -91,12 +83,6 @@ class ModelTask extends Specification {
 				tareas(1).label must equalTo("prueba2")
 				tareas(0).nombre must equalTo("domingo")
 				tareas(1).nombre must equalTo("domingo")
-
-				Task.delete(tareas(0).id)
-				Task.delete(tareas(1).id)
-
-				val tareasborradas = Task.buscarByUser("domingo")
-				tareasborradas.length must equalTo(0)
 			}
 		}
 
@@ -119,13 +105,6 @@ class ModelTask extends Specification {
 				tareasordenadas(0).label must equalTo("prueba6")
 				tareasordenadas(1).label must equalTo("prueba3")
 				tareasordenadas(2).label must equalTo("prueba4")
-
-				Task.delete(tareas(0).id)
-				Task.delete(tareas(1).id)
-				Task.delete(tareas(2).id)
-
-				val tareasborradas = Task.all()
-				tareasborradas.length must equalTo(0)
 			}
 		}
 
@@ -140,12 +119,6 @@ class ModelTask extends Specification {
 				tareas.length must equalTo(2)
 				tareas(0).label must equalTo("prueba6")
 				tareas(1).label must equalTo("prueba3")
-
-				Task.delete(tareas(0).id)
-				Task.delete(tareas(1).id)
-
-				val tareasborradas = Task.listarPorAnyo(2011)
-				tareasborradas.length must equalTo(0)
 			}
 		}
 	}

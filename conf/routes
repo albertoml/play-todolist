@@ -26,4 +26,3 @@ POST	/:login/tasks 				controllers.Application.newTaskUser(login: String)
 #Crear tareas con fecha
 POST	/tasks/:fecha 				controllers.Application.newTaskDate(fecha: String)
 POST 	/:login/tasks/:fecha 		controllers.Application.newTaskUserDate(login: String, fecha: String)
-
