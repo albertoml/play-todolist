@@ -145,8 +145,6 @@ class ModelTask extends Specification {
 				c1(0).label must equalTo("jugar al padel")
 				c1(1).label must equalTo("jugar al futbol")
 				c1(2).label must equalTo("jugar al golf")
-
-
 			}
 		}
 	}

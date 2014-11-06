@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import models.Task
 import models.Task_user
+import models.Category
 import play.api.libs.json._
 import java.util.Date
 
@@ -154,5 +155,31 @@ object Application extends Controller {
 	def listarAnyo(anyo: Int) = Action {
 		val jsonTareas = Json.toJson(Task.listarPorAnyo(anyo))
 		Ok(jsonTareas)
+	}
+
+	def newCategory(login: String, cat: String) = Action {
+		Task_user.buscarUser(login) match {
+			case Some(user) => {
+				val c = new Category(cat, login)
+				Category.create(c)
+				Status(201)(Json.toJson(c))
+			}
+			case None => {Status(400)("Usuario incorrecto")} 
+		}
+	}
+
+	def viewCategories = Action{
+		val jsonCategories = Json.toJson(Category.all())
+		Ok(jsonCategories)
+	}
+
+	def viewUserCategories(login: String) = Action{
+		Task_user.buscarUser(login) match {
+			case Some(user) => {
+				val jsonlist = Json.toJson(Category.listByUser(login))
+				Status(200)(jsonlist)
+			}
+			case None => {Status(400)("Usuario incorrecto")} 
+		}
 	}
 }

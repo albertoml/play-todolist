@@ -11,6 +11,18 @@ case class Category(nombre_cat: String, usuario: String, id: Option[Long]=None)
 
 object Category {
 
+	implicit val categoryReads: Reads[Category] = (
+		(JsPath \ "nombre_cat").read[String] and
+		(JsPath \ "usuario").read[String] and
+		(JsPath \ "id").read[Option[Long]]
+		)(Category.apply _ )
+
+	implicit val categoryWrites: Writes[Category] = (
+		(JsPath \ "nombre_cat").write[String] and
+		(JsPath \ "usuario").write[String] and
+		(JsPath \ "id").write[Option[Long]]
+		)(unlift(Category.unapply))
+
 	val category = {
 		get[String]("nombre_cat") ~
   		get[String]("usuario") ~ 

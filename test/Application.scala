@@ -4,6 +4,7 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 import models.Task
+import models.Category
 import java.util.Date
 
 @RunWith(classOf[JUnitRunner])
@@ -21,6 +22,13 @@ class Application extends Specification {
 	val t6 = new Task("prueba5", "carlos", None)
 	val t7 = new Task("prueba6", "alberto", Some(f2))
 	val t8 = new Task("prueba7", "rocio", None)
+
+    val c1 = new Category("deportes", "alberto")
+    val c2 = new Category("ocio", "alberto")
+    val c3 = new Category("mads", "alberto")
+    val c4 = new Category("iphone", "domingo")
+    val c5 = new Category("apple", "domingo")
+    val c6 = new Category("examenes", "domingo")
 
 	"La aplicacion" should{
 
@@ -40,7 +48,6 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks")).get
     			status(home) must equalTo(200)
 				contentAsString(home) must contain ("\"nombre\":\"alberto\"")
-				//Task.delete(1)
 			}
     	}
 
@@ -50,7 +57,6 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks/" + 1)).get
     			status(home) must equalTo(200)
 				contentAsString(home) must contain ("\"label\":\"prueba1\"")
-				//Task.delete(1)
 			}
     	}
 
@@ -60,7 +66,6 @@ class Application extends Specification {
     			val home = route(FakeRequest(GET, "/tasks/" + 2)).get
     			status(home) must equalTo(404)
     			contentAsString(home) must contain ("Tarea no encontrada")
-    			//Task.delete(1)
     		}
     	}
 
@@ -91,7 +96,6 @@ class Application extends Specification {
     			val home = route(FakeRequest(DELETE, "/tasks/2")).get
     			status(home) must equalTo(404)
     			contentAsString(home) must contain("Tarea no encontrada")
-    			//Task.delete(1)
     		}
     	}
 
@@ -105,9 +109,6 @@ class Application extends Specification {
     			contentAsString(home) must contain("prueba1")
     			contentAsString(home) must contain("prueba2")
     			contentAsString(home) must not contain("prueba3")
-    			//Task.delete(1)
-    			//Task.delete(2)
-    			//Task.delete(3)
     		}
     	}
 
@@ -161,5 +162,45 @@ class Application extends Specification {
     		status(home) must equalTo(400)
     		contentAsString(home) must contain("Usuario incorrecto")
     	}
+
+        "Crear una categoria por un usuario" in new WithApplication{
+            val Some(home) = route(FakeRequest(POST, "/domingo/category/deportes"))
+            status(home) must equalTo(201)
+            contentAsString(home) must contain("deportes")
+            contentAsString(home) must contain("domingo")
+        }
+
+        "listar todas las categorias" in new WithApplication{
+            Category.create(c1)
+            Category.create(c2)
+            Category.create(c3)
+            Category.create(c5)
+
+            val home = route(FakeRequest(GET, "/category")).get
+            status(home) must equalTo(200)
+            contentAsString(home) must contain ("\"usuario\":\"alberto\"")
+            contentAsString(home) must contain ("\"usuario\":\"domingo\"")
+            contentAsString(home) must contain ("\"nombre_cat\":\"mads\"")
+            contentAsString(home) must contain ("\"nombre_cat\":\"ocio\"")
+            contentAsString(home) must contain ("\"nombre_cat\":\"deportes\"")
+        }
+
+        "listar categorias por usuario" in new WithApplication{
+            Category.create(c1)
+            Category.create(c2)
+            Category.create(c3)
+            Category.create(c5)
+
+            val home = route(FakeRequest(GET, "/domingo/category")).get
+            val home2 = route(FakeRequest(GET, "/alberto/category")).get
+            status(home) must equalTo(200)
+            status(home2) must equalTo(200)
+            contentAsString(home) must contain ("\"nombre_cat\":\"apple\"")
+            contentAsString(home) must contain ("\"usuario\":\"domingo\"")
+            contentAsString(home2) must contain ("\"usuario\":\"alberto\"")
+            contentAsString(home2) must contain ("\"nombre_cat\":\"ocio\"")
+            contentAsString(home2) must contain ("\"nombre_cat\":\"deportes\"")
+            contentAsString(home2) must contain ("\"nombre_cat\":\"mads\"")
+        }
 	}
 }

@@ -19,10 +19,17 @@ GET		/tasks/:id 					controllers.Application.task(id: Long)
 POST 	/tasks 						controllers.Application.newTask
 DELETE 	/tasks/:id 					controllers.Application.deleteTask(id: Long)
 
-#Crear un consultar tareas con usuario
+#Crear y consultar tareas con usuario
 GET 	/:login/tasks 				controllers.Application.tasksUser(login: String)
 POST	/:login/tasks 				controllers.Application.newTaskUser(login: String)
 
 #Crear tareas con fecha
 POST	/tasks/:fecha 				controllers.Application.newTaskDate(fecha: String)
 POST 	/:login/tasks/:fecha 		controllers.Application.newTaskUserDate(login: String, fecha: String)
+
+#Crear y consultar categorias
+POST	/:login/category/:cat		controllers.Application.newCategory(login: String, cat: String)
+GET		/category 					controllers.Application.viewCategories
+GET		/:login/category 			controllers.Application.viewUserCategories(login: String)
+
+
