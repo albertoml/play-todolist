@@ -5,6 +5,7 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 import models.Category
+import models.Task
 
 @RunWith(classOf[JUnitRunner])
 class ModelCategories extends Specification {
@@ -73,6 +74,22 @@ class ModelCategories extends Specification {
 				val c2 = Category.listByUser("domingo")
 				c2.length must equalTo(1)
 				c2(0).nombre_cat must equalTo("estudio")
+			}
+		}
+
+		"Añadir una tarea a una categoria" in {
+			running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+
+				val cat = new Category("deportes", "alberto")
+				Category.create(cat)
+				val t = new Task("jugar al padel", "alberto", None, Some(1))
+				Task.create(t)
+
+				Category.addTask(t, cat)
+				val c1 = Task.listCategory(cat)
+				c1.length must equalTo(1)
+				c1(0).nombre must equalTo("alberto")
+				c1(0).label must equalTo("jugar al padel")
 			}
 		}
 	}

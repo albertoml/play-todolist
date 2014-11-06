@@ -48,4 +48,13 @@ object Category {
 		'usuario -> usuario
 		).as(category *)
 	}
+
+	def addTask(t: Task, cat:Category){
+		DB.withConnection { implicit c =>
+    	SQL("insert into cat_task (category, task) values ({cat}, {t})").on(
+      	'cat -> cat.nombre_cat,
+      	't -> t.id.get
+    	).executeUpdate()
+  		}
+	}
 }

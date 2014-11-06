@@ -5,6 +5,7 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 import models.Task
+import models.Category
 import java.util.Date
 
 @RunWith(classOf[JUnitRunner])
@@ -119,6 +120,33 @@ class ModelTask extends Specification {
 				tareas.length must equalTo(2)
 				tareas(0).label must equalTo("prueba6")
 				tareas(1).label must equalTo("prueba3")
+			}
+		}
+
+
+		"Listar tareas por una categoria" in {
+			running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
+
+				val cat = new Category("deportes", "alberto")
+				Category.create(cat)
+				val t = new Task("jugar al padel", "alberto", None, Some(1))
+				val t2 = new Task("jugar al futbol", "alberto", None, Some(2))
+				val t3 = new Task("jugar al golf", "alberto", None, Some(3))
+				Task.create(t)
+				Task.create(t2)
+				Task.create(t3)
+				Category.addTask(t, cat)
+				Category.addTask(t2, cat)
+				Category.addTask(t3, cat)
+
+				val c1= Task.listCategory(cat)
+				c1.length must equalTo(3)
+				c1(0).nombre must equalTo("alberto")
+				c1(0).label must equalTo("jugar al padel")
+				c1(1).label must equalTo("jugar al futbol")
+				c1(2).label must equalTo("jugar al golf")
+
+
 			}
 		}
 	}

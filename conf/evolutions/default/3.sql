@@ -9,6 +9,12 @@ CREATE TABLE categorias (
 	usuario varchar(50) REFERENCES task_user (nombre)
 );
 
+CREATE TABLE cat_task (
+	category varchar(50) REFERENCES categorias (nombre_cat),
+	task integer REFERENCES task (id),
+	PRIMARY KEY(category, task)
+);
+
 
 # --- !Downs
 

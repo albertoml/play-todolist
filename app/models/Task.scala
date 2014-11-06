@@ -86,4 +86,14 @@ object Task {
 		'anyo -> anyo
 		).as(task *)
 	}
+
+
+	def listCategory(cat: Category): List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task, cat_task where cat_task.category={cat} and cat_task.task=task.id"
+		).on(
+		'cat -> cat.nombre_cat
+		).as(task *)
+	}
+
 }
