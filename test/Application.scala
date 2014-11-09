@@ -170,6 +170,37 @@ class Application extends Specification {
             contentAsString(home) must contain("domingo")
         }
 
+        "Borrar una categoria" in new WithApplication{
+            Category.create(c1)
+            val list = Category.all()
+            list.length must equalTo(1)
+            val Some(home) = route(FakeRequest(DELETE, "/alberto/category/deportes"))
+            status(home) must equalTo(200)
+            contentAsString(home) must contain("Categoria borrada con exito")
+            val list2 = Category.all()
+            list2.length must equalTo(0)
+
+            val Some(home2) = route(FakeRequest(DELETE, "/alberto/category/deportes"))
+            status(home2) must equalTo(404)
+            contentAsString(home2) must contain("La categoria no existe")
+        }
+
+        "No borrar la categoria si tiene tareas asociadas" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+            val Some(home) = route(FakeRequest(DELETE, "/alberto/category/deportes"))
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La categoria tiene tareas asociadas")
+        }
+
+        "No borrar la categoria si no pertenece al usuario creador" in new WithApplication{
+            Category.create(c1)
+            val Some(home) = route(FakeRequest(DELETE, "/domingo/category/deportes"))
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La categoria no pertenece al usuario")
+        }
+
         "listar todas las categorias" in new WithApplication{
             Category.create(c1)
             Category.create(c2)
@@ -201,6 +232,131 @@ class Application extends Specification {
             contentAsString(home2) must contain ("\"nombre_cat\":\"ocio\"")
             contentAsString(home2) must contain ("\"nombre_cat\":\"deportes\"")
             contentAsString(home2) must contain ("\"nombre_cat\":\"mads\"")
+        }
+
+        "Añadir una categoria a una tarea" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+
+            val home = route(FakeRequest(POST, "/addCat/1/deportes")).get
+            status(home) must equalTo(200)
+            contentAsString(home) must contain ("Categoria deportes añadida a la tarea")
+        }
+
+        "No añadir la categoria a la tarea si la tarea no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+
+            val home = route(FakeRequest(POST, "/addCat/2/deportes")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La tarea no existe")
+        }
+
+        "No añadir la categoria a la tarea si la categoria no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+
+            val home = route(FakeRequest(POST, "/addCat/1/noexiste")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La categoria no existe")
+        }
+
+        "No añadir la categoria a la tarea si ambas no pertenecen al mismo usuario" in new WithApplication{
+            Category.create(c1)
+            Task.create(t2)
+
+            val home = route(FakeRequest(POST, "/addCat/1/deportes")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La tarea y la categoria deben ser del mismo usuario")
+        }
+
+        "No añadir la categoria a la tarea si la categoria ya contiente la tarea" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+
+            val home = route(FakeRequest(POST, "/addCat/1/deportes")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain ("La categoria ya contiene la tarea")
+        }
+
+        "Borrar una tarea de una categoria" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+            val list1 = Task.listCategory(c1)
+            list1.length must equalTo(1)
+
+            val home = route(FakeRequest(POST, "/removeCat/1/deportes")).get
+            status(home) must equalTo(200)
+            contentAsString(home) must contain("Categoria deportes borrada de la tarea")
+            val list2 = Task.listCategory(c1)
+            list2.length must equalTo(0)
+
+            val home2 = route(FakeRequest(POST, "/removeCat/1/deportes")).get
+            status(home2) must equalTo(404)
+            contentAsString(home2) must contain("La categoria no contiene a la tarea")
+        }
+
+        "No borrar la categoria de la tarea si la tarea no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+
+            val home = route(FakeRequest(POST, "/removeCat/2/deportes")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La tarea no existe")
+        }
+
+        "No borrar la categoria de la tarea si la categoria no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+
+            val home = route(FakeRequest(POST, "/addCat/1/noexiste")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La categoria no existe")
+        }
+
+        "No borrar la categoria de la tarea si ambas no pertenecen al mismo usuario" in new WithApplication{
+            Category.create(c1)
+            Task.create(t2)
+
+            val home = route(FakeRequest(POST, "/addCat/1/deportes")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La tarea y la categoria deben ser del mismo usuario")
+        }
+
+        "Listar tareas por categoria" in new WithApplication{
+            Category.create(c1)
+            Category.create(c5)
+            Task.create(t1)
+            Task.create(t2)
+            Task.create(t4)
+            Task.create(t5)
+            Category.addTask(Task.buscar(1).get, c1)
+            Category.addTask(Task.buscar(2).get, c5)
+            Category.addTask(Task.buscar(3).get, c1)
+            Category.addTask(Task.buscar(4).get, c1)
+
+            val home = route(FakeRequest(GET, "/category/apple")).get
+            val home2 = route(FakeRequest(GET, "/category/deportes")).get
+            status(home) must equalTo(200)
+            status(home2) must equalTo(200)
+            contentAsString(home) must contain ("\"label\":\"prueba1\"")
+            contentAsString(home) must contain ("\"nombre\":\"domingo\"")
+            contentAsString(home2) must contain ("\"nombre\":\"alberto\"")
+            contentAsString(home2) must contain ("\"label\":\"prueba\"")
+            contentAsString(home2) must contain ("\"label\":\"prueba3\"")
+            contentAsString(home2) must contain ("\"label\":\"prueba4\"")
+        }
+
+        "No listar las tareas por categoria si la categoria no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+
+            val home = route(FakeRequest(GET, "/category/noexiste")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain ("La categoria no existe")
         }
 	}
 }

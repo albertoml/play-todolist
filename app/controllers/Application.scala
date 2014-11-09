@@ -168,6 +168,32 @@ object Application extends Controller {
 		}
 	}
 
+	def deleteCategory(login: String, cat: String) = Action {
+		Category.buscar(cat) match {
+			case Some(c) => {
+				Task_user.buscarUser(login) match {
+					case Some(u) => {
+						if(u.nombre == c.usuario){
+							val listaTareas = Task.listCategory(c)
+							if(listaTareas.length==0){
+								Category.delete(c.id.get)
+								Status(200)("Categoria borrada con exito")
+							}
+							else{
+								Status(400)("La categoria tiene tareas asociadas")
+							}
+						}
+						else{
+							Status(400)("La categoria no pertenece al usuario")
+						}
+					}
+					case None => {Status(400)("El usuario no existe")}
+				}
+			}
+			case None => {Status(404)("La categoria no existe")}
+		}
+	}
+
 	def viewCategories = Action{
 		val jsonCategories = Json.toJson(Category.all())
 		Ok(jsonCategories)
@@ -180,6 +206,68 @@ object Application extends Controller {
 				Status(200)(jsonlist)
 			}
 			case None => {Status(400)("Usuario incorrecto")} 
+		}
+	}
+
+	def addCategory(id: Long, cat: String) = Action{
+		Task.buscar(id) match {
+			case Some(task) => {
+				Category.buscar(cat) match {
+					case Some(c) => {
+						if(task.nombre == c.usuario){
+							val listaTareas = Task.listCategory(c)
+							if(listaTareas.contains(task)){
+								Status(400)("La categoria ya contiene la tarea")
+							}
+							else{
+								Category.addTask(task, c)
+								Ok("Categoria " + cat + " añadida a la tarea")
+							}
+						}
+						else{
+							Status(400)("La tarea y la categoria deben ser del mismo usuario")
+						}
+					}
+					case None => {Status(400)("La categoria no existe")} 
+				}
+			}
+			case None => {Status(400)("La tarea no existe")}  
+		}
+	}
+
+	def removeCategory(id: Long, cat: String) = Action{
+		Task.buscar(id) match {
+			case Some(task) => {
+				Category.buscar(cat) match {
+					case Some(c) => {
+						if(task.nombre == c.usuario){
+							val listaTareas = Task.listCategory(c)
+							if(listaTareas.contains(task)){
+								Category.removeTask(task, c)
+								Ok("Categoria " + cat + " borrada de la tarea")
+							}
+							else{
+								Status(404)("La categoria no contiene a la tarea")
+							}
+						}
+						else{
+							Status(400)("La tarea y la categoria deben ser del mismo usuario")
+						}
+					}
+					case None => {Status(400)("La categoria no existe")} 
+				}
+			}
+			case None => {Status(400)("La tarea no existe")}  
+		}
+	}
+
+	def tasksCategory(cat: String) = Action{
+		Category.buscar(cat) match {
+			case Some(c) => {
+				val jsonTareas = Json.toJson(Task.listCategory(c))
+				Ok(jsonTareas)
+			}
+			case None => {Status(400)("La categoria no existe")}
 		}
 	}
 }

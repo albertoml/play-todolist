@@ -53,6 +53,13 @@ object Category {
   		}
 	}
 
+	def buscar(nombre: String): Option[Category] = DB.withConnection {
+		implicit c =>
+		SQL("select * from categorias where nombre_cat = {nombre}").on(
+		'nombre-> nombre
+		).as(Category.category.singleOpt)
+	}
+
 	def listByUser(usuario: String): List[Category] = DB.withConnection {
 		implicit c =>
 		SQL("select * from categorias, task_user where categorias.usuario={usuario} and task_user.nombre=categorias.usuario"
@@ -64,6 +71,15 @@ object Category {
 	def addTask(t: Task, cat:Category){
 		DB.withConnection { implicit c =>
     	SQL("insert into cat_task (category, task) values ({cat}, {t})").on(
+      	'cat -> cat.nombre_cat,
+      	't -> t.id.get
+    	).executeUpdate()
+  		}
+	}
+
+	def removeTask(t: Task, cat: Category){
+		DB.withConnection { implicit c =>
+    	SQL("delete from cat_task where category={cat} and task={t}").on(
       	'cat -> cat.nombre_cat,
       	't -> t.id.get
     	).executeUpdate()
