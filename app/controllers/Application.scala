@@ -51,8 +51,18 @@ object Application extends Controller {
 	def deleteTask(id: Long) = Action {
 		Task.buscar(id) match {
 			case Some(task) => {
-				Task.delete(task.id.get)
-				Ok("Tarea borrada con exito")
+				val listCat = Category.listTask(task)
+				if(listCat.length==0){
+					Task.delete(task.id.get)
+					Ok("Tarea borrada con exito")
+				}
+				else{
+					for( cat <- listCat) {
+						Category.removeTask(task, cat)
+					}
+					Task.delete(task.id.get)
+					Ok("La tarea se ha desvinculado de las categorias asociadas y ha sido borrada con exito")
+				}
 			}
 			case None => { NotFound("Tarea no encontrada") }
 		}	
@@ -261,7 +271,7 @@ object Application extends Controller {
 		}
 	}
 
-	def tasksCategory(cat: String) = Action{
+	def listTasksOfCategory(cat: String) = Action{
 		Category.buscar(cat) match {
 			case Some(c) => {
 				val jsonTareas = Json.toJson(Task.listCategory(c))
@@ -269,5 +279,16 @@ object Application extends Controller {
 			}
 			case None => {Status(400)("La categoria no existe")}
 		}
+	}
+
+	def listCategoryOfTasks(id: Long) = Action{
+		Task.buscar(id) match {
+			case Some(t) => {
+				val jsonCategories = Json.toJson(Category.listTask(t))
+				Ok(jsonCategories)
+			}
+			case None => {Status(400)("La tarea no existe")}
+		}
+		
 	}
 }

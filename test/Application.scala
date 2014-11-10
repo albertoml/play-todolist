@@ -43,30 +43,24 @@ class Application extends Specification {
     	}
 
     	"mostrar las tareas de (alberto) al llamar a /tasks" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-				Task.create(t4)
-    			val home = route(FakeRequest(GET, "/tasks")).get
-    			status(home) must equalTo(200)
-				contentAsString(home) must contain ("\"nombre\":\"alberto\"")
-			}
+			Task.create(t4)
+			val home = route(FakeRequest(GET, "/tasks")).get
+			status(home) must equalTo(200)
+			contentAsString(home) must contain ("\"nombre\":\"alberto\"")
     	}
 
     	"mostrar una tarea por id" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-				Task.create(t2)
-    			val home = route(FakeRequest(GET, "/tasks/" + 1)).get
-    			status(home) must equalTo(200)
-				contentAsString(home) must contain ("\"label\":\"prueba1\"")
-			}
+			Task.create(t2)
+			val home = route(FakeRequest(GET, "/tasks/" + 1)).get
+			status(home) must equalTo(200)
+			contentAsString(home) must contain ("\"label\":\"prueba1\"")
     	}
 
     	"mostrar error 404 cuando consultas una tarea inexistente" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-    			Task.create(t1)
-    			val home = route(FakeRequest(GET, "/tasks/" + 2)).get
-    			status(home) must equalTo(404)
-    			contentAsString(home) must contain ("Tarea no encontrada")
-    		}
+			Task.create(t1)
+			val home = route(FakeRequest(GET, "/tasks/" + 2)).get
+			status(home) must equalTo(404)
+			contentAsString(home) must contain ("Tarea no encontrada")
     	}
 
     	"crear una tarea cuando envias un formulario con el campo label" in new WithApplication{
@@ -82,34 +76,40 @@ class Application extends Specification {
     	}
 
     	"borrar una tarea especificando el id" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-    			Task.create(t2)
-    			val home = route(FakeRequest(DELETE, "/tasks/1")).get
-    			status(home) must equalTo(200)
-    			contentAsString(home) must contain("Tarea borrada con exito")
-    		}
+			Task.create(t2)
+			val home = route(FakeRequest(DELETE, "/tasks/1")).get
+			status(home) must equalTo(200)
+			contentAsString(home) must contain("Tarea borrada con exito")
     	}
 
+        "Borrar una tarea con categorias asociadas, desvincula la tarea de las categorias" in new WithApplication{
+            Category.create(c1)
+            Category.create(c2)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+            Category.addTask(Task.buscar(1).get, c2)
+
+            val home = route(FakeRequest(DELETE, "/tasks/1")).get
+            status(home) must equalTo(200)
+            contentAsString(home) must contain("La tarea se ha desvinculado de las categorias asociadas y ha sido borrada con exito")
+        }
+
     	"no borrar la tarea si la id es incorrecta" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-    			Task.create(t2)
-    			val home = route(FakeRequest(DELETE, "/tasks/2")).get
-    			status(home) must equalTo(404)
-    			contentAsString(home) must contain("Tarea no encontrada")
-    		}
+			Task.create(t2)
+			val home = route(FakeRequest(DELETE, "/tasks/2")).get
+			status(home) must equalTo(404)
+			contentAsString(home) must contain("Tarea no encontrada")
     	}
 
     	"buscar tareas por usuario especificado" in new WithApplication{
-    		running(FakeApplication(additionalConfiguration = inMemoryDatabase())){
-    			Task.create(t2)
-    			Task.create(t3)
-    			Task.create(t4)
-    			val home = route(FakeRequest(GET, "/domingo/tasks")).get
-    			status(home) must equalTo(200)
-    			contentAsString(home) must contain("prueba1")
-    			contentAsString(home) must contain("prueba2")
-    			contentAsString(home) must not contain("prueba3")
-    		}
+			Task.create(t2)
+			Task.create(t3)
+			Task.create(t4)
+			val home = route(FakeRequest(GET, "/domingo/tasks")).get
+			status(home) must equalTo(200)
+			contentAsString(home) must contain("prueba1")
+			contentAsString(home) must contain("prueba2")
+			contentAsString(home) must not contain("prueba3")
     	}
 
     	"mostrar error al consultar tareas de un usuario inexistente" in new WithApplication{
@@ -357,6 +357,37 @@ class Application extends Specification {
             val home = route(FakeRequest(GET, "/category/noexiste")).get
             status(home) must equalTo(400)
             contentAsString(home) must contain ("La categoria no existe")
+        }
+
+        "Listar las categorias por tarea" in new WithApplication{
+            Task.create(t1)
+            Task.create(t2)
+            Category.create(c1)
+            Category.create(c2)
+            Category.create(c4)
+            Category.addTask(Task.buscar(1).get, c1)
+            Category.addTask(Task.buscar(1).get, c2)
+            Category.addTask(Task.buscar(2).get, c4)
+
+            val home = route(FakeRequest(GET, "/tasks/category/1")).get
+            val home2 = route(FakeRequest(GET, "/tasks/category/2")).get
+            status(home) must equalTo(200)
+            status(home2) must equalTo(200)
+            contentAsString(home) must contain ("\"usuario\":\"alberto\"")
+            contentAsString(home) must contain ("\"nombre_cat\":\"deportes\"")
+            contentAsString(home) must contain ("\"nombre_cat\":\"ocio\"")
+            contentAsString(home2) must contain ("\"usuario\":\"domingo\"")
+            contentAsString(home2) must contain ("\"nombre_cat\":\"iphone\"")
+        }
+
+        "No listar las categorias por tarea si la tarea no existe" in new WithApplication{
+            Category.create(c1)
+            Task.create(t1)
+            Category.addTask(Task.buscar(1).get, c1)
+
+            val home = route(FakeRequest(GET, "/tasks/category/2")).get
+            status(home) must equalTo(400)
+            contentAsString(home) must contain ("La tarea no existe")
         }
 	}
 }

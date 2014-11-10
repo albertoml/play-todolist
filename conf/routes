@@ -39,4 +39,7 @@ POST	/addCat/:id/:cat 			controllers.Application.addCategory(id: Long, cat: Stri
 POST 	/removeCat/:id/:cat 		controllers.Application.removeCategory(id: Long, cat: String)
 
 #Listar tareas por categoria
-GET		/category/:cat 				controllers.Application.tasksCategory(cat: String)
+GET		/category/:cat 				controllers.Application.listTasksOfCategory(cat: String)
+
+#Listar categorias por tarea
+GET 	/tasks/category/:id 		controllers.Application.listCategoryOfTasks(id: Long)

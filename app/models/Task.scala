@@ -95,5 +95,4 @@ object Task {
 		'cat -> cat.nombre_cat
 		).as(task *)
 	}
-
 }

@@ -85,4 +85,12 @@ object Category {
     	).executeUpdate()
   		}
 	}
+
+	def listTask(t: Task): List[Category] = DB.withConnection {
+		implicit c =>
+		SQL("select * from categorias, cat_task where cat_task.category=categorias.nombre_cat and cat_task.task={id}"
+		).on(
+		'id -> t.id.get
+		).as(category *)
+	}
 }
