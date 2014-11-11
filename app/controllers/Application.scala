@@ -171,8 +171,13 @@ object Application extends Controller {
 		Task_user.buscarUser(login) match {
 			case Some(user) => {
 				val c = new Category(cat, login)
-				Category.create(c)
-				Status(201)(Json.toJson(c))
+				Category.buscar(cat) match {
+					case Some(categoria) => {Status(400)("La categoria ya existe")}
+					case None => {
+						Category.create(c)
+						Status(201)(Json.toJson(c))
+					}
+				}
 			}
 			case None => {Status(400)("Usuario incorrecto")} 
 		}

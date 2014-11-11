@@ -170,6 +170,14 @@ class Application extends Specification {
             contentAsString(home) must contain("domingo")
         }
 
+        "No crear la categoria si ya existe ese nombre" in new WithApplication{
+            Category.create(c1)
+            val Some(home) = route(FakeRequest(POST, "/alberto/category/deportes"))
+            status(home) must equalTo(400)
+            contentAsString(home) must contain("La categoria ya existe")
+
+        }
+
         "Borrar una categoria" in new WithApplication{
             Category.create(c1)
             val list = Category.all()
