@@ -8,32 +8,32 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import java.util.Date
 
-case class Task(id: Long, label: String, nombre: String, fecha: Option[Date])
+case class Task(label: String, nombre: String, fecha: Option[Date], id: Option[Long]=None)
 
 object Task {
 
 	val formatdate = Writes.dateWrites("yyyy-MM-dd")
 
 	implicit val taskReads: Reads[Task] = (
-		(JsPath \ "id").read[Long] and
 		(JsPath \ "label").read[String] and
 		(JsPath \ "nombre").read[String] and
-		(JsPath \ "fecha").read[Option[Date]]
+		(JsPath \ "fecha").read[Option[Date]] and
+		(JsPath \ "id").read[Option[Long]]
 		)(Task.apply _ )
 
 	implicit val taskWrites: Writes[Task] = (
-		(JsPath \ "id").write[Long] and
 		(JsPath \ "label").write[String] and
 		(JsPath \ "nombre").write[String] and
-		(JsPath \ "fecha").writeNullable[Date](formatdate)
+		(JsPath \ "fecha").writeNullable[Date](formatdate) and
+		(JsPath \ "id").write[Option[Long]]
 		)(unlift(Task.unapply))
 
-	val task = {
-  		get[Long]("id") ~ 
+	val task = { 
   		get[String]("label") ~
   		get[String]("nombre") ~
-  		get[Option[Date]]("fecha") map {
-    	case id~label~nombre~fecha => Task(id, label, nombre, fecha)
+  		get[Option[Date]]("fecha") ~ 
+  		get[Option[Long]]("id") map {
+    	case label~nombre~fecha~id => Task(label, nombre, fecha, id)
   		}
 	}
   
@@ -84,6 +84,15 @@ object Task {
 		implicit c =>
 		SQL("select * from task where YEAR(fecha)={anyo}").on(
 		'anyo -> anyo
+		).as(task *)
+	}
+
+
+	def listCategory(cat: Category): List[Task] = DB.withConnection {
+		implicit c =>
+		SQL("select * from task, cat_task where cat_task.category={cat} and cat_task.task=task.id"
+		).on(
+		'cat -> cat.nombre_cat
 		).as(task *)
 	}
 }
